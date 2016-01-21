@@ -1,4 +1,4 @@
- public class Tree<T> : IEnumerable<T>
+public class Tree<T> : IEnumerable<T>
     {
         public class TreeNode<T>
         {
@@ -9,7 +9,6 @@
             {
                 get { return this.childs; }
             }
-
             public TreeNode<T> Parent { get; protected set; }
 
             public TreeNode(T value)
@@ -97,26 +96,9 @@
         }
         protected TreeNode<T> FindNode(TreeNode<T> root, T searched)
         {
-            if (root.Value.Equals(searched))
-            {
-                return root;
-            }
-            else
-            {
-                foreach (TreeNode<T> node in root.Childs)
-                {
-                    if (node.Value.Equals(searched))
-                    {
-                        return node;
-                    }
-                    else
-                    {
-                        return FindNode(node, searched);
-                    }
-                }
-
-                return null;
-            }
+            // TODO: Implement DFS or BFS
+            IList<TreeNode<T>> elements = GetAllNodeElements();
+            return elements.FirstOrDefault();
         }
 
         public IEnumerator<T> GetEnumerator()
