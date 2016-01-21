@@ -1,4 +1,4 @@
-  public class Tree<T> : IEnumerable<T>
+public class Tree<T> : IEnumerable<T>
     {
         public class TreeNode<T>
         {
@@ -65,12 +65,13 @@
         }
         public IEnumerable<T> GetElements()
         {
-            IList<TreeNode<T>> nodeElements = GetElements(this.Root);
-            IEnumerable<T> elements = nodeElements.Select(n => n.Value);
+            IList<TreeNode<T>> childElements = GetAllChilds(this.Root);
+            childElements.Insert(0, this.Root);
+            IEnumerable<T> elements = childElements.Select(n => n.Value);
             return elements;
         }
 
-        protected IList<TreeNode<T>> GetElements(TreeNode<T> root)
+        protected IList<TreeNode<T>> GetAllChilds(TreeNode<T> root)
         {
             if (root == null)
             {
@@ -85,11 +86,9 @@
             {
                 if (child != null)
                 {
-                    result.AddRange(GetElements(child));
-                    if (child.Childs.Count > 0)
-                    {
-                        result.AddRange(child.Childs);
-                    }
+                    result.Add(child);
+                    IList<TreeNode<T>> subChildren = GetAllChilds(child);
+                    result.AddRange(subChildren);
                 }
             }
 
@@ -97,19 +96,26 @@
         }
         protected TreeNode<T> FindNode(TreeNode<T> root, T searched)
         {
-            foreach (TreeNode<T> node in root.Childs)
+            if (root.Value.Equals(searched))
             {
-                if (node.Value.Equals(searched))
-                {
-                    return node;
-                }
-                else
-                {
-                    return FindNode(node, searched);
-                }
+                return root;
             }
+            else
+            {
+                foreach (TreeNode<T> node in root.Childs)
+                {
+                    if (node.Value.Equals(searched))
+                    {
+                        return node;
+                    }
+                    else
+                    {
+                        return FindNode(node, searched);
+                    }
+                }
 
-            return null;
+                return null;
+            }
         }
 
         public IEnumerator<T> GetEnumerator()
