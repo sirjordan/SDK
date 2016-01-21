@@ -1,25 +1,15 @@
-public class Tree<T> : IEnumerable<T>
+ public class Tree<T> : IEnumerable<T>
     {
         public class TreeNode<T>
         {
             private IList<TreeNode<T>> childs;
 
             public T Value { get; set; }
-            public IList<TreeNode<T>> Childs
+            public IEnumerable<TreeNode<T>> Childs
             {
-                get
-                {
-                    return this.childs;
-                }
-                protected set
-                {
-                    this.childs = value;
-                    foreach (TreeNode<T> child in this.childs)
-                    {
-                        child.Parent = this;
-                    }
-                }
+                get { return this.childs; }
             }
+
             public TreeNode<T> Parent { get; protected set; }
 
             public TreeNode(T value)
@@ -28,6 +18,11 @@ public class Tree<T> : IEnumerable<T>
                 this.childs = new List<TreeNode<T>>();
             }
 
+            public void InsertChild(TreeNode<T> node)
+            {
+                this.childs.Add(node);
+                node.Parent = this;
+            }
             public override bool Equals(object obj)
             {
                 TreeNode<T> other = (TreeNode<T>)obj;
@@ -43,6 +38,7 @@ public class Tree<T> : IEnumerable<T>
         }
 
         public TreeNode<T> Root { get; set; }
+        public IEnumerable<TreeNode<T>> NodeElements { get { return GetAllNodeElements(); } }
 
         public Tree(T root)
         {
@@ -56,22 +52,27 @@ public class Tree<T> : IEnumerable<T>
             if (parentAsTreeNode != null)
             {
                 TreeNode<T> elementAsTreeNode = new TreeNode<T>(elementToInsert);
-                parentAsTreeNode.Childs.Add(elementAsTreeNode);
+                parentAsTreeNode.InsertChild(elementAsTreeNode);
             }
             else
             {
                 throw new InvalidOperationException(string.Format("Unable to find element: {0}", parent.ToString()));
             }
         }
-        public IEnumerable<T> GetElements()
+        public IEnumerable<T> GetAllElements()
         {
-            IList<TreeNode<T>> childElements = GetAllChilds(this.Root);
-            childElements.Insert(0, this.Root);
+            IList<TreeNode<T>> childElements = GetAllNodeElements();
             IEnumerable<T> elements = childElements.Select(n => n.Value);
             return elements;
         }
 
-        protected IList<TreeNode<T>> GetAllChilds(TreeNode<T> root)
+        protected IList<TreeNode<T>> GetAllNodeElements()
+        {
+            IList<TreeNode<T>> elements = GetChilds(this.Root);
+            elements.Insert(0, this.Root);
+            return elements;
+        }
+        protected IList<TreeNode<T>> GetChilds(TreeNode<T> root)
         {
             if (root == null)
             {
@@ -80,14 +81,14 @@ public class Tree<T> : IEnumerable<T>
 
             List<TreeNode<T>> result = new List<TreeNode<T>>();
 
-            IList<TreeNode<T>> children = root.Childs;
+            IEnumerable<TreeNode<T>> children = root.Childs;
 
             foreach (var child in children)
             {
                 if (child != null)
                 {
                     result.Add(child);
-                    IList<TreeNode<T>> subChildren = GetAllChilds(child);
+                    IList<TreeNode<T>> subChildren = GetChilds(child);
                     result.AddRange(subChildren);
                 }
             }
@@ -120,7 +121,7 @@ public class Tree<T> : IEnumerable<T>
 
         public IEnumerator<T> GetEnumerator()
         {
-            IEnumerable<T> elements = GetElements();
+            IEnumerable<T> elements = GetAllElements();
             return elements.GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator()
