@@ -2,8 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 public class Tree<T> : IEnumerable<T>
 {
@@ -28,6 +26,10 @@ public class Tree<T> : IEnumerable<T>
         {
             this.childs.Add(node);
             node.Parent = this;
+        }
+        public void Remove()
+        {
+            this.Parent.childs.Remove(this);
         }
         public override bool Equals(object obj)
         {
@@ -64,6 +66,21 @@ public class Tree<T> : IEnumerable<T>
         {
             throw new InvalidOperationException(string.Format("Unable to find element: {0}", parent.ToString()));
         }
+    }
+    public void Remove(T elementToRemove)
+    {
+        TreeNode<T> element = FindNode(this.Root, elementToRemove);
+        if (element == null)
+        {
+            throw new InvalidOperationException(string.Format("Unable to find element: {0}", elementToRemove.ToString()));
+
+        }
+        if (element.Equals(this.Root))
+        {
+            throw new InvalidOperationException("Root cannot be deleted");
+        }
+
+        element.Remove();
     }
     public IEnumerable<T> GetAllElements()
     {
